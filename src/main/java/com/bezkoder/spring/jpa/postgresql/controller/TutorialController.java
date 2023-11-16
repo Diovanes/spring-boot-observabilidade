@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +28,15 @@ import com.bezkoder.spring.jpa.postgresql.repository.TutorialRepository;
 @RequestMapping("/api")
 public class TutorialController {
 
+	private static final Logger LOG = LoggerFactory.getLogger(TutorialController.class);
+
 	@Autowired
 	TutorialRepository tutorialRepository;
 
 	@GetMapping("/tutorials")
 	public ResponseEntity<List<Tutorial>> getAllTutorials(@RequestParam(required = false) String title) {
+		LOG.info("GET tutorials... ");
+
 		try {
 			List<Tutorial> tutorials = new ArrayList<Tutorial>();
 
@@ -53,6 +59,7 @@ public class TutorialController {
 	public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") long id) {
 		Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
+		LOG.info("GET tutorials ID - " + id);
 		if (tutorialData.isPresent()) {
 			return new ResponseEntity<>(tutorialData.get(), HttpStatus.OK);
 		} else {
@@ -62,6 +69,7 @@ public class TutorialController {
 
 	@PostMapping("/tutorials")
 	public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
+		LOG.info("POST tutorials - " + tutorial.toString());
 		try {
 			Tutorial _tutorial = tutorialRepository
 					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
@@ -75,6 +83,7 @@ public class TutorialController {
 	public ResponseEntity<Tutorial> updateTutorial(@PathVariable("id") long id, @RequestBody Tutorial tutorial) {
 		Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
+		LOG.info("PUT tutorials - " + tutorialData.toString());
 		if (tutorialData.isPresent()) {
 			Tutorial _tutorial = tutorialData.get();
 			_tutorial.setTitle(tutorial.getTitle());
@@ -88,6 +97,7 @@ public class TutorialController {
 
 	@DeleteMapping("/tutorials/{id}")
 	public ResponseEntity<HttpStatus> deleteTutorial(@PathVariable("id") long id) {
+		LOG.info("DELETE tutorials ID - " + id);
 		try {
 			tutorialRepository.deleteById(id);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -98,6 +108,7 @@ public class TutorialController {
 
 	@DeleteMapping("/tutorials")
 	public ResponseEntity<HttpStatus> deleteAllTutorials() {
+		LOG.info("DELETE tutorials...");
 		try {
 			tutorialRepository.deleteAll();
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
